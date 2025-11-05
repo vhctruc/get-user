@@ -21,11 +21,13 @@ jobs:
 
       - name: Install Chrome
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip libnss3 libxss1 libasound2 libatk1.0-0 libx11-xcb1 libgtk-3-0
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install -y ./google-chrome-stable_current_amd64.deb
-          google-chrome --version
+            sudo apt-get update
+            sudo apt-get install -y wget gnupg unzip
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+            sudo apt-get update
+            sudo apt-get install -y google-chrome-stable
+            google-chrome --version
 
       - name: Install Python packages
         run: |
