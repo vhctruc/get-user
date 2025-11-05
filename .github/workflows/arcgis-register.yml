@@ -1,0 +1,43 @@
+name: ArcGIS Auto Register
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [arcgis-register]
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip libnss3 libxss1 libasound2 libatk1.0-0 libx11-xcb1 libgtk-3-0
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
+          google-chrome --version
+
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install undetected-chromedriver selenium requests
+
+      - name: Run ArcGIS auto register
+        env:
+          TEMPMail_API_URL: ${{ secrets.TEMPMail_API_URL }}
+          TEMPMail_TOKEN: ${{ secrets.TEMPMail_TOKEN }}
+          TEMPMail_DOMAIN: ${{ secrets.TEMPMail_DOMAIN }}
+          CALLBACK_URL: ${{ secrets.WORKER_CALLBACK_URL }}
+          CALLBACK_SECRET: ${{ secrets.WORKER_CALLBACK_SECRET }}
+        run: |
+          python3 arcgis_auto_register.py
